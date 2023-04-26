@@ -108,7 +108,14 @@ export function createNodeColumns(
       key: "n_" + stage.id,
     };
   };
-
+  const deepCheck = (topStage: StageInfo, parentStageName: string, willRecurse: boolean, rowNodes: Array<NodeInfo> = []) => {
+    if (!stageHasChildren(topStage)) {
+        rowNodes.push(makeNodeForStage(topStage, parentStageName));
+    } else {
+    console.log("Tiwari");
+        rowNodes.push(processTopStage(topStage, willRecurse));
+    }
+  };
   const processTopStage = (topStage: StageInfo, willRecurse: boolean) => {
     // If stage has children, we don't draw a node for it, just its children
     const stagesForColumn =
@@ -125,11 +132,12 @@ export function createNodeColumns(
     };
 
     for (const nodeStage of stagesForColumn) {
-      const rowNodes: Array<NodeInfo> = [];
+      const rowNodes = [];
       if (!collasped && !willRecurse && stageHasChildren(nodeStage)) {
         column.hasBranchLabels = true;
-        forEachChildStage(nodeStage, (parentStage, childStage, _) =>
-          rowNodes.push(makeNodeForStage(childStage, parentStage.name))
+        forEachChildStage(nodeStage, (parentStage, childStage, willRecurse) =>
+          deepCheck(childStage, parentStage.name, willRecurse, rowNodes)
+          //rowNodes.push(makeNodeForStage(childStage, parentStage.name))
         );
       } else {
         rowNodes.push(makeNodeForStage(nodeStage));
@@ -139,15 +147,16 @@ export function createNodeColumns(
         break;
       }
     }
+    return column;
 
-    nodeColumns.push(column);
+    //nodeColumns.push(column);
   };
 
   for (const protoTopStage of topLevelStages) {
     const selfParentTopStage = { ...protoTopStage, children: [protoTopStage] };
 
     forEachChildStage(selfParentTopStage, (_, topStage, willRecurse) =>
-      processTopStage(topStage, willRecurse)
+      nodeColumns.push(processTopStage(topStage, willRecurse))
     );
   }
 
@@ -195,6 +204,8 @@ function positionNodes(
   let previousTopNode: NodeInfo | undefined;
 
   for (const column of nodeColumns) {
+    //if (column)
+
     const topNode = column.rows[0][0];
 
     let yp = ypStart; // Reset Y to top for each column
@@ -211,6 +222,8 @@ function positionNodes(
 
     let widestRow = 0;
     for (const row of column.rows) {
+    console.log("Agyaey");
+    console.log(row);
       widestRow = Math.max(widestRow, row.length);
     }
 
