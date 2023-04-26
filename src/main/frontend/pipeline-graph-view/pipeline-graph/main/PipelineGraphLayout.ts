@@ -112,7 +112,6 @@ export function createNodeColumns(
     if (!stageHasChildren(topStage)) {
         rowNodes.push(makeNodeForStage(topStage, parentStageName));
     } else {
-    console.log("Tiwari");
         rowNodes.push(processTopStage(topStage, willRecurse));
     }
   };
@@ -204,7 +203,7 @@ function positionNodes(
   let previousTopNode: NodeInfo | undefined;
 
   for (const column of nodeColumns) {
-    //if (column)
+    console.log(column);
 
     const topNode = column.rows[0][0];
 
@@ -222,8 +221,6 @@ function positionNodes(
 
     let widestRow = 0;
     for (const row of column.rows) {
-    console.log("Agyaey");
-    console.log(row);
       widestRow = Math.max(widestRow, row.length);
     }
 
